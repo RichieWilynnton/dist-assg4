@@ -37,23 +37,6 @@ echo ""
 echo "Task 1 complete → $OUT_DIR/task1_preprocessed.csv"
 echo ""
 
-# ─── Start Spark Standalone Cluster ──────────────────────────────────────────
-echo "====================================================="
-echo " Starting Spark Standalone Cluster"
-echo "====================================================="
-export SPARK_LOCAL_IP=127.0.0.1
-export SPARK_MASTER_HOST=127.0.0.1
-$SPARK_HOME/sbin/stop-worker.sh 2>/dev/null || true
-$SPARK_HOME/sbin/stop-master.sh 2>/dev/null || true
-sleep 2
-$SPARK_HOME/sbin/start-master.sh
-sleep 5
-$SPARK_HOME/sbin/start-worker.sh spark://127.0.0.1:7077
-sleep 3
-echo "Spark master UI: http://localhost:8080"
-echo ""
-
-echo "======================================================"
 echo " TASK 2: Rank channels by total views (Spark)"
 echo "======================================================"
 
@@ -104,19 +87,3 @@ $SPARK_HOME/bin/spark-submit \
 
 echo ""
 echo "Task 3 complete → $OUT_DIR/task3_videos_by_date/"
-
-# ─── Stop Spark Standalone Cluster ───────────────────────────────────────────
-echo ""
-echo "======================================================"
-echo " Stopping Spark Standalone Cluster"
-echo "======================================================"
-$SPARK_HOME/sbin/stop-worker.sh
-$SPARK_HOME/sbin/stop-master.sh
-
-echo ""
-echo "======================================================"
-echo " All tasks complete."
-echo " Artifacts:  build/    (classes + JARs)"
-echo " Results:    output/   (preprocessed CSV + Spark output)"
-echo " To clean:   rm -rf build/ output/"
-echo "======================================================"
