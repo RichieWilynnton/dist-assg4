@@ -1,6 +1,6 @@
 set -e
 
-# Build-time classpaths derived from env vars set in ~/.zshrc
+# $HADOOP_HOME and $SPARK_HOME should be set in the environment before running this script
 HADOOP_CP="$HADOOP_HOME/share/hadoop/common/hadoop-common-3.4.0.jar:$HADOOP_HOME/share/hadoop/mapreduce/hadoop-mapreduce-client-core-3.4.0.jar"
 SPARK_CP=$(ls "$SPARK_HOME/jars/"*.jar | tr '\n' ':')
 
