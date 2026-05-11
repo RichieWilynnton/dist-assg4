@@ -6,16 +6,6 @@ import scala.Tuple2;
 
 import java.util.List;
 
-/**
- * Task 3: Rank the time periods (publish_time dates) with the highest number
- * of videos, ordered in descending order.
- *
- * Usage: spark-submit --class Task3VideosByDate Task3VideosByDate.jar <input CSV> <output dir>
- *
- * Expected CSV columns (0-based):
- *   0  video_id
- *   5  publish_time  (already stripped to YYYY-MM-DD by Task 1)
- */
 public class Task3VideosByDate {
 
     private static final int COL_PUBLISH_TIME = 5;
@@ -51,14 +41,13 @@ public class Task3VideosByDate {
             return new Tuple2<>(date, 1);
         });
 
-        // Reduce: count videos per date
         JavaPairRDD<String, Integer> totalByDate = dateCounts.reduceByKey(Integer::sum);
 
-        // Swap (date, count) -> (count, date), sort descending, take top 10
+        // Swap (date, count) -> (count, date), sort descending
         JavaPairRDD<Integer, String> swapped = totalByDate.mapToPair(t -> new Tuple2<>(t._2(), t._1()));
         JavaPairRDD<Integer, String> sorted = swapped.sortByKey(false); // descending
 
-        // Format output: (date, count) — top 10 only
+        // Format output: (date, count) 
         JavaRDD<String> result = sorted
                 .map(t -> "(" + t._2() + ", " + t._1() + ")");
 
@@ -66,9 +55,6 @@ public class Task3VideosByDate {
         sc.close();
     }
 
-    /**
-     * Parses a single CSV line, respecting double-quoted fields.
-     */
     private static List<String> parseCSVLine(String line) {
         List<String> fields = new java.util.ArrayList<>();
         StringBuilder current = new StringBuilder();

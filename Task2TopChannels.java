@@ -6,17 +6,6 @@ import scala.Tuple2;
 
 import java.util.List;
 
-/**
- * Task 2: Rank the most popular channels by aggregating their total views,
- * ordered in descending order.
- *
- * Usage: spark-submit --class Task2TopChannels Task2TopChannels.jar <input CSV> <output dir>
- *
- * Expected CSV columns (0-based):
- *   0  video_id
- *   3  channel_title
- *   7  views
- */
 public class Task2TopChannels {
 
     private static final int COL_CHANNEL = 3;
@@ -33,7 +22,6 @@ public class Task2TopChannels {
 
         JavaRDD<String> lines = sc.textFile(args[0]);
 
-        // Remove header row
         String header = lines.first();
         JavaRDD<String> data = lines.filter(line -> !line.equals(header));
 
@@ -52,14 +40,12 @@ public class Task2TopChannels {
             return new Tuple2<>(channel, views);
         });
 
-        // Reduce: sum views per channel
         JavaPairRDD<String, Long> totalViews = channelViews.reduceByKey(Long::sum);
 
-        // Swap (channel, total) -> (total, channel), sort descending, take top 10
         JavaPairRDD<Long, String> swapped = totalViews.mapToPair(t -> new Tuple2<>(t._2(), t._1()));
         JavaPairRDD<Long, String> sorted = swapped.sortByKey(false); // descending
 
-        // Format output: ("channel_title",total_views) — top 10 only
+        // Format output: ("channel_title",total_views) 
         JavaRDD<String> result = sorted
                 .map(t -> "(\"" + t._2() + "\"," + t._1() + ")");
 

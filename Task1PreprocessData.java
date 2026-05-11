@@ -12,16 +12,8 @@ import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-/**
- * Hadoop MapReduce job to preprocess USvideos.csv.
- * Strips the publish_time field from a full ISO-8601 timestamp
- * (e.g. 2017-11-13T17:13:01.000Z) to just the date (e.g. 2017-11-13).
- *
- * Usage: hadoop jar PreprocessData.jar PreprocessData <input> <output>
- */
 public class Task1PreprocessData {
 
-    // Index of the publish_time column (0-based)
     private static final int PUBLISH_TIME_INDEX = 5;
 
     public static class PreprocessMapper
@@ -33,18 +25,15 @@ public class Task1PreprocessData {
 
             String line = value.toString();
 
-            // Pass the header row through unchanged
             if (line.startsWith("video_id,")) {
                 context.write(NullWritable.get(), new Text(line));
                 return;
             }
 
-            // Parse the CSV line, respecting double-quoted fields
             List<String> fields = parseCSVLine(line);
 
             if (fields.size() > PUBLISH_TIME_INDEX) {
                 String publishTime = fields.get(PUBLISH_TIME_INDEX);
-                // Keep only the date portion (first 10 characters: YYYY-MM-DD)
                 if (publishTime.length() >= 10) {
                     fields.set(PUBLISH_TIME_INDEX, publishTime.substring(0, 10));
                 }
@@ -53,10 +42,6 @@ public class Task1PreprocessData {
             context.write(NullWritable.get(), new Text(rebuildCSVLine(fields)));
         }
 
-        /**
-         * Parses a single CSV line into a list of raw field strings
-         * (quotes are preserved so the output is lossless).
-         */
         private List<String> parseCSVLine(String line) {
             List<String> fields = new ArrayList<>();
             StringBuilder current = new StringBuilder();
@@ -74,13 +59,10 @@ public class Task1PreprocessData {
                     current.append(c);
                 }
             }
-            fields.add(current.toString()); // last field
+            fields.add(current.toString()); 
             return fields;
         }
 
-        /**
-         * Rebuilds a CSV line from a list of raw field strings.
-         */
         private String rebuildCSVLine(List<String> fields) {
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < fields.size(); i++) {
